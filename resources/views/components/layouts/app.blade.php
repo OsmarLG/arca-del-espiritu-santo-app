@@ -98,7 +98,7 @@
                 @endif
                 @guest
                     <x-menu-item title="Login" icon="o-lock-closed" link="{{ route('login') }}" />
-                    <x-menu-item title="Register" icon="o-plus" link="{{ route('register') }}" />
+                    {{-- <x-menu-item title="Register" icon="o-plus" link="{{ route('register') }}" /> --}}
                 @endguest
             </x-menu>
             <hr>
