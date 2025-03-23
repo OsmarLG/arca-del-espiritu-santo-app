@@ -49,11 +49,33 @@
         @endscope
 
         @scope('cell_status', $user)
-            <x-button 
-                icon="{{ $user->status ? 'o-check-circle' : 'o-x-circle' }}" 
-                class="{{ $user->status ? 'btn-info' : 'btn-danger' }}" 
-                wire:click="toggleStatus({{ $user->id }})">
+            <x-button icon="{{ $user->status ? 'o-check-circle' : 'o-x-circle' }}"
+                class="{{ $user->status ? 'btn-info' : 'btn-danger' }}" wire:click="toggleStatus({{ $user->id }})">
             </x-button>
+        @endscope
+
+        @scope('cell_numero_telefono', $user)
+            {{ $user->numero_telefono ?? '-' }}
+        @endscope
+
+        @scope('cell_direccion', $user)
+            {{ $user->direccion ?? '-' }}
+        @endscope
+
+        @scope('cell_genero_id', $user)
+            {{ $user->genero->nombre ?? '-' }}
+        @endscope
+
+        @scope('cell_edad', $user)
+            {{ $user->edad ?? '-' }}
+        @endscope
+
+        @scope('cell_estado_civil_id', $user)
+            {{ $user->estado_civil->nombre ?? '-' }}
+        @endscope
+
+        @scope('cell_invitador_id', $user)
+            {{ $user->invitador->name ?? '-' }}
         @endscope
 
         @scope('cell_roles', $user)
@@ -91,6 +113,34 @@
                 hint="Ingresa tu Contraseña" clearable required />
             <x-password label="Confirmar Contraseña" wire:model="userPassword_confirmation" type="password"
                 placeholder="Contraseña segura" hint="Confirma tu Contraseña" clearable required />
+            <x-input label="Numero de Telefono" wire:model="numero_telefono" placeholder="Tú Numero de Telefono"
+                icon="o-phone" hint="Tú Numero de Telefono" />
+            <x-input label="Direccion" wire:model="direccion" placeholder="Tú Direccion" icon="o-home"
+                hint="Tú Direccion" />
+            {{-- {{ dd($generos, $estados_civiles, $allUsers) }} --}}
+            <x-choices label="Genero" wire:model="genero_id" placeholder="Tú Genero" icon="o-user" hint="Tú Genero"
+                :options="$generos?->map(fn($genero) => ['id' => $genero->id, 'name' => $genero->nombre]) ?? []" single />
+            <x-choices label="Estado Civil" wire:model="estado_civil_id" placeholder="Tú Estado Civil" icon="o-user"
+                hint="Tú Estado Civil" :options="$estados_civiles?->map(fn($estado) => ['id' => $estado->id, 'name' => $estado->nombre]) ??
+                    []" single />
+            <x-input label="Profesion" wire:model="profesion" placeholder="Tú Profesion" icon="o-user"
+                hint="Tú Profesion" />
+            <x-datetime label="Fecha de Nacimiento" wire:model="fecha_nacimiento" placeholder="Tú Fecha de Nacimiento"
+                icon="o-calendar" hint="Tú Fecha de Nacimiento" />
+            <x-datetime label="Fecha de Conversion" wire:model="fecha_conversion" placeholder="Tú Fecha de Conversion"
+                icon="o-calendar" hint="Tú Fecha de Conversion" />
+            <x-choices label="Invitador" wire:model="invitador_id" placeholder="Tú Invitador" icon="o-user"
+                :options="$allUsers->map(
+                    fn($user) => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'username' => $user->username,
+                        'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : null,
+                        'initials' => collect(explode(' ', $user->name))
+                            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+                            ->join(''),
+                    ],
+                )" single hint="Tú Invitador" />
 
             <div class="mb-4">
                 <x-choices label="Roles" allow-all wire:model="selectedRoles" :options="$availableRoles" />
@@ -120,6 +170,32 @@
                 hint="Ingresa tu Contraseña" clearable />
             <x-password label="Confirmar Contraseña" wire:model="userPassword_confirmation" type="password"
                 placeholder="Contraseña segura" hint="Confirma tu Contraseña" clearable />
+            <x-input label="Numero de Telefono" wire:model="numero_telefono" placeholder="Tú Numero de Telefono"
+                icon="o-phone" hint="Tú Numero de Telefono" />
+            <x-input label="Direccion" wire:model="direccion" placeholder="Tú Direccion" icon="o-home"
+                hint="Tú Direccion" />
+            <x-choices label="Genero" wire:model="genero_id" placeholder="Tú Genero" icon="o-user"
+                hint="Tú Genero" :options="$generos?->map(fn($genero) => ['id' => $genero->id, 'name' => $genero->nombre]) ?? []" single />
+            <x-choices label="Estado Civil" wire:model="estado_civil_id" placeholder="Tú Estado Civil"
+                icon="o-user" hint="Tú Estado Civil" :options="$estados_civiles?->map(fn($estado) => ['id' => $estado->id, 'name' => $estado->nombre]) ?? []" single />
+            <x-input label="Profesion" wire:model="profesion" placeholder="Tú Profesion" icon="o-user"
+                hint="Tú Profesion" />
+            <x-datetime label="Fecha de Nacimiento" wire:model="fecha_nacimiento"
+                placeholder="Tú Fecha de Nacimiento" icon="o-calendar" hint="Tú Fecha de Nacimiento" />
+            <x-datetime label="Fecha de Conversion" wire:model="fecha_conversion"
+                placeholder="Tú Fecha de Conversion" icon="o-calendar" hint="Tú Fecha de Conversion" />
+            <x-choices label="Invitador" wire:model="invitador_id" placeholder="Tú Invitador" icon="o-user"
+                :options="$allUsers->map(
+                    fn($user) => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'username' => $user->username,
+                        'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : null,
+                        'initials' => collect(explode(' ', $user->name))
+                            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+                            ->join(''),
+                    ],
+                )" single hint="Tú Invitador" />
 
             <div class="mb-4">
                 <x-choices label="Roles" allow-all wire:model="selectedRoles" :options="$availableRoles" />

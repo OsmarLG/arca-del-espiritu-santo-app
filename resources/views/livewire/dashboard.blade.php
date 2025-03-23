@@ -6,10 +6,10 @@
     @if (auth()->user()->hasRole(['master', 'admin']))
         {{-- Stats en la parte superior --}}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <x-stat title="Total Users" :value="$totalUsers" icon="o-users" />
-            <x-stat title="Total Roles" :value="$totalRoles" icon="o-lock-closed" />
-            <x-stat title="Total Perms" :value="$totalPermissions" icon="o-shield-check" />
-            <x-stat title="Users Today" :value="$usersTodayCount" icon="o-user-plus" />
+            <x-stat title="Total Usuarios" :value="$totalUsers" icon="o-users" />
+            {{-- <x-stat title="Total Roles" :value="$totalRoles" icon="o-lock-closed" /> --}}
+            {{-- <x-stat title="Total Permisoss" :value="$totalPermissions" icon="o-shield-check" /> --}}
+            <x-stat title="Creyentes Hoy" :value="$creyentesTodayCount" icon="o-user-plus" />
         </div>
 
         <div class="h-6 mt-10"></div>
@@ -18,10 +18,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Columna Izquierda: lista de usuarios de hoy --}}
             <div>
-                <x-card title="Usuarios Registrados Hoy">
-                    @if ($usersToday->count())
+                <x-card title="Creyentes Registrados Hoy">
+                    @if ($creyentesToday->count())
                         <ul class="divide-y divide-gray-200">
-                            @foreach ($usersToday as $u)
+                            @foreach ($creyentesToday as $u)
                                 <li class="py-2 flex items-center justify-between">
                                     {{-- Flex con avatar+nombre --}}
                                     <div class="flex items-center gap-2">
@@ -55,8 +55,8 @@
             </div>
 
             {{-- Columna Derecha: Chart + Botones --}}
-            <div>
-                <div class="flex gap-4 mb-4 justify-center md:justify-start">
+            {{-- <div> --}}
+                {{-- <div class="flex gap-4 mb-4 justify-center md:justify-start"> --}}
                     {{-- Descomenta si quieres randomize
                 <x-button
                     label="Randomize"
@@ -64,14 +64,14 @@
                     class="btn-primary"
                 />
                 --}}
-                    <x-button label="Cambiar Tipo de Gráfico" wire:click="switch"
+                    {{-- <x-button label="Cambiar Tipo de Gráfico" wire:click="switch"
                         class="bg-blue-400 text-black dark:bg-slate-800 dark:text-white" />
                 </div>
 
                 <div class="max-w-md">
                     <x-chart wire:model="myChart" />
                 </div>
-            </div>
+            </div> --}}
         </div>
     @else
     @endif

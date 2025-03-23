@@ -27,6 +27,16 @@ class User extends Authenticatable  implements MustVerifyEmail
         'avatar',
         'password',
         'status',
+        'numero_telefono',
+        'direccion',
+        'invitador_id',
+        'genero_id',
+        'estado_civil_id',
+        'profesion',
+        'fecha_nacimiento',
+        'fecha_conversion',
+        'viene_otra_iglesia',
+        'bautizado'
     ];
 
     /**
@@ -50,6 +60,27 @@ class User extends Authenticatable  implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'status' => 'boolean',
+            'viene_otra_iglesia' => 'boolean',
+            'bautizado' => 'boolean',
+            'fecha_nacimiento' => 'date',
+            'fecha_conversion' => 'date',
         ];
+    }
+
+    public function invitador()
+    {
+        return $this->belongsTo(User::class, 'invitador_id');
+    }
+
+    public function getEdadAttribute() {
+        return $this->fecha_nacimiento->age ?? null;
+    }
+
+    public function genero() {
+        return $this->belongsTo(Genero::class, 'genero_id');
+    }
+
+    public function estado_civil() {
+        return $this->belongsTo(EstadoCivil::class, 'estado_civil_id');
     }
 }

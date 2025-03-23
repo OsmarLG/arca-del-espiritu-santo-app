@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CreyentesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\PermissionController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 
 
@@ -59,6 +61,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('users.index');
         Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
+    });
+
+    // Grupo de rutas para Creyentes
+    Route::prefix('creyentes')->group(function () {
+        Route::get('/', [CreyentesController::class, 'index'])->name('creyentes.index');
     });
 
     // Grupo de rutas para Settings

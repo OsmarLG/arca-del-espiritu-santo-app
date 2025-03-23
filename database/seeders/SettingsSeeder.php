@@ -9,8 +9,8 @@ class SettingsSeeder extends Seeder
 {
     public function run(): void
     {
-        Setting::updateOrCreate(['key' => 'app_name'], ['value' => config('app.name')]);
-        Setting::updateOrCreate(['key' => 'app_description'], ['value' => 'Sistema de gestión basado en Laravel 11 con Maru UI']);
-        Setting::updateOrCreate(['key' => 'app_logo'], ['value' => 'storage/jaguar-removebg.png']);
+        Setting::create(['key' => 'app_name', 'value' => 'Arca del Espíritu Santo']);
+        Setting::create(['key' => 'app_description', 'value' => 'Sistema de gestión de la iglesia Arca del Espíritu Santo']);
+        Setting::create(['key' => 'app_logo', 'value' => 'storage/logo_arca.jpg']);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\User\V1;
+namespace App\Livewire\Creyentes\V1;
 
 use App\Models\EstadoCivil;
 use App\Models\Genero;
@@ -9,61 +9,52 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class Index extends Component
 {
-    use WithPagination, Toast;
+    use WithPagination, Toast, WithFileUploads;
 
     // Búsqueda y modales
     public $search = '';
-    public bool $create_user_modal = false;
-    public bool $edit_user_modal = false;
+    public bool $create_creyente_modal = false;
+    public bool $edit_creyente_modal = false;
+    public bool $update_avatar_modal = false;
 
     // Campos para crear/editar
-    public ?int $editing_user_id = null;
-    public string $userName = '';
-    public string $userEmail = '';
-    public string $userUsername = '';
-    public string $userPassword = '';
-    public string $userPassword_confirmation = '';
+    public ?int $editing_creyente_id = null;
+    public ?int $selected_user_id = null;
+    public string $creyenteName = '';
     public ?string $numero_telefono = null;
     public ?string $direccion = null;
     public ?int $genero_id = null;
     public ?int $estado_civil_id = null;
     public ?string $profesion = null;
-    public ?Carbon $fecha_nacimiento = null;
-    public ?Carbon $fecha_conversion = null;
+    public ?string $fecha_nacimiento = null;
+    public ?string $fecha_conversion = null;
     public ?int $invitador_id = null;
-
-    // Roles y Permisos disponibles (para selects/checkboxes)
-    public array $availableRoles = [];
-    public array $availablePermissions = [];
-
-    // Roles y Permisos seleccionados en el form
-    public array $selectedRoles = [];
-    public array $selectedPermissions = [];
-
+    public ?bool $viene_otra_iglesia = null;
+    public ?bool $bautizado = null;
+    public $avatar;
+    public $newAvatar;
     public bool $continuarCreando = false;
 
     // Cabeceras de la tabla
     public array $headers = [
         ['key' => 'id', 'label' => '#', 'class' => 'w-1'],
         ['key' => 'avatar', 'label' => 'Avatar', 'class' => 'w-1'],
-        ['key' => 'name', 'label' => 'Nombre del Usuario', 'class' => 'text-black dark:text-white'],
-        ['key' => 'username', 'label' => 'Username', 'class' => 'text-black dark:text-white'],
-        ['key' => 'status', 'label' => 'Estado', 'class' => 'text-black dark:text-white'],
-        ['key' => 'email', 'label' => 'Email', 'class' => 'text-black dark:text-white'],
+        ['key' => 'name', 'label' => 'Nombre del Creyente', 'class' => 'text-black dark:text-white'],
         ['key' => 'numero_telefono', 'label' => 'Numero de Telefono', 'class' => 'text-black dark:text-white'],
         ['key' => 'direccion', 'label' => 'Direccion', 'class' => 'text-black dark:text-white'],
         ['key' => 'genero_id', 'label' => 'Genero', 'class' => 'text-black dark:text-white'],
-        // ['key' => 'estado_civil_id', 'label' => 'Estado Civil', 'class' => 'text-black dark:text-white'],
-        // ['key' => 'profesion', 'label' => 'Profesion', 'class' => 'text-black dark:text-white'],
-        // ['key' => 'fecha_nacimiento', 'label' => 'Fecha de Nacimiento', 'class' => 'text-black dark:text-white'],
+        ['key' => 'estado_civil_id', 'label' => 'Estado Civil', 'class' => 'text-black dark:text-white'],
+        ['key' => 'profesion', 'label' => 'Profesion', 'class' => 'text-black dark:text-white'],
+        ['key' => 'edad', 'label' => 'Edad', 'class' => 'text-black dark:text-white'],
+        ['key' => 'viene_otra_iglesia', 'label' => 'Viene de otra iglesia', 'class' => 'text-black dark:text-white'],
+        ['key' => 'bautizado', 'label' => 'Bautizado', 'class' => 'text-black dark:text-white'],
+        ['key' => 'fecha_conversion', 'label' => 'Fecha de Conversion', 'class' => 'text-black dark:text-white'],
         ['key' => 'invitador_id', 'label' => 'Invitador', 'class' => 'text-black dark:text-white'],
-        ['key' => 'roles', 'label' => 'Roles', 'class' => 'text-black dark:text-white'],
     ];
     public array $sortBy = ['column' => 'name', 'direction' => 'asc'];
 
@@ -76,27 +67,6 @@ class Index extends Component
         if (!auth()->user() || !auth()->user()->hasPermissionTo('view_any_user')) {
             abort(403);
         }
-
-        // Carga todos los roles y permisos disponibles (Spatie)
-        // Obtiene todos los roles
-        $roles = Role::pluck('name', 'id'); // [1 => 'admin', 2 => 'master', ...]
-
-        // Mapea a algo como: [ ['id' => 1, 'name' => 'admin'], ... ]
-        $this->availableRoles = collect($roles)->map(function ($roleName, $roleId) {
-            return [
-                'id'   => $roleId,
-                'name' => $roleName
-            ];
-        })->values()->toArray();
-
-        // Igual con permisos, si quieres la misma forma:
-        $permissions = Permission::pluck('name', 'id');
-        $this->availablePermissions = collect($permissions)->map(function ($permName, $permId) {
-            return [
-                'id'   => $permId,
-                'name' => $permName
-            ];
-        })->values()->toArray();
     }
 
     /**
@@ -105,40 +75,38 @@ class Index extends Component
     public function openCreateModal()
     {
         $this->reset([
-            'userName',
-            'userEmail',
-            'userUsername',
-            'userPassword',
+            'creyenteName',
             'numero_telefono',
             'direccion',
-            'userPassword_confirmation',
-            'selectedRoles',
-            'selectedPermissions',
             'genero_id',
             'estado_civil_id',
             'profesion',
+            'viene_otra_iglesia',
+            'bautizado',
+            'avatar',
+            'newAvatar',
             'fecha_conversion',
             'fecha_nacimiento',
             'invitador_id',
         ]);
-        $this->create_user_modal = true;
+        $this->create_creyente_modal = true;
     }
 
     /**
      * Crea un nuevo usuario con roles y/o permisos
      */
-    public function createUser()
+    public function createCreyente()
     {
         $this->validate([
-            'userName'     => 'required|string',
-            'userUsername'    => 'required|string|unique:users,username',
-            'userEmail'    => 'required|email|unique:users,email',
-            'userPassword' => 'required|min:6|confirmed',
+            'creyenteName'    => 'required|string|unique:users,name',
             'numero_telefono' => 'nullable|string',
             'direccion' => 'nullable|string',
             'genero_id' => 'nullable|exists:generos,id',
             'estado_civil_id' => 'nullable|exists:estados_civiles,id',
             'profesion' => 'nullable|string',
+            'newAvatar' => 'nullable|image|max:1024',
+            'viene_otra_iglesia' => 'nullable|boolean',
+            'bautizado' => 'nullable|boolean',
             'fecha_nacimiento' => 'nullable|string',
             'fecha_conversion' => 'nullable|string',
             'invitador_id' => 'nullable|exists:users,id',
@@ -147,32 +115,20 @@ class Index extends Component
 
         // Creamos el usuario
         $user = User::create([
-            'name'     => $this->userName,
-            'username'    => $this->userUsername,
-            'email'    => $this->userEmail,
-            'password' => Hash::make($this->userPassword),
+            'name'     => $this->creyenteName,
+            'username'    => strtolower($this->creyenteName),
+            'email'    => strtolower($this->creyenteName) . '@arca-del-espiritu-santo.com',
             'numero_telefono' => $this->numero_telefono,
             'direccion' => $this->direccion,
             'genero_id' => $this->genero_id,
             'estado_civil_id' => $this->estado_civil_id,
             'profesion' => $this->profesion,
+            'viene_otra_iglesia' => $this->viene_otra_iglesia,
+            'bautizado' => $this->bautizado,
             'fecha_nacimiento' => $this->fecha_nacimiento ? Carbon::parse($this->fecha_nacimiento)->format('Y-m-d') : null,
             'fecha_conversion' => $this->fecha_conversion ? Carbon::parse($this->fecha_conversion)->format('Y-m-d') : null,
             'invitador_id' => $this->invitador_id,
         ]);
-
-        // Asignar roles (con syncRoles)
-        if (!empty($this->selectedRoles)) {
-            // Obtenemos los nombres de esos roles
-            $rolesNames = Role::whereIn('id', $this->selectedRoles)->pluck('name')->toArray();
-            $user->syncRoles($rolesNames);
-        }
-
-        // Asignar permisos (con syncPermissions)
-        if (!empty($this->selectedPermissions)) {
-            $permissionsNames = Permission::whereIn('id', $this->selectedPermissions)->pluck('name')->toArray();
-            $user->syncPermissions($permissionsNames);
-        }
 
         // Permisos predeterminados
         $defaultPermissions = [
@@ -191,86 +147,72 @@ class Index extends Component
             }
         }
 
+        $user->assignRole('creyente');
+
         if (!$this->continuarCreando) {
             $this->reset([
-                'create_user_modal',
-                'userName',
-                'userUsername',
-                'userEmail',
+                'create_creyente_modal',
+                'creyenteName',
                 'numero_telefono',
                 'direccion',
-                'userPassword',
-                'userPassword_confirmation',
-                'selectedRoles',
-                'selectedPermissions',
                 'genero_id',
                 'estado_civil_id',
                 'profesion',
                 'fecha_nacimiento',
                 'fecha_conversion',
                 'invitador_id',
+                'viene_otra_iglesia',
+                'bautizado',
             ]);
         } else {
             $this->reset([
-                'userName',
-                'userUsername',
-                'userEmail',
+                'creyenteName',
                 'numero_telefono',
                 'direccion',
-                'userPassword',
-                'userPassword_confirmation',
-                'selectedRoles',
-                'selectedPermissions',
                 'genero_id',
                 'estado_civil_id',
                 'profesion',
+                'viene_otra_iglesia',
+                'bautizado',
                 'fecha_nacimiento',
                 'fecha_conversion',
                 'invitador_id'
             ]);
         }
 
-        $this->success('Usuario creado con éxito!');
+        $this->success('Creyente creado con éxito!');
     }
 
     /**
      * Abre el modal de edición de un usuario existente
      */
-    public function editUser(int $userId)
+    public function editCreyente(int $userId)
     {
         $user = User::findOrFail($userId);
 
-        $this->editing_user_id = $user->id;
-        $this->userName  = $user->name;
-        $this->userUsername = $user->username;
-        $this->userEmail = $user->email;
-        $this->userPassword = ''; // vacío, solo se setea si se cambia
+        $this->editing_creyente_id = $user->id;
+        $this->creyenteName = $user->name;
         $this->numero_telefono = $user->numero_telefono ?? null;
         $this->direccion = $user->direccion ?? null;
         $this->genero_id = $user->genero_id ?? null;
         $this->estado_civil_id = $user->estado_civil_id ?? null;
         $this->profesion = $user->profesion ?? null;
+        $this->viene_otra_iglesia = $user->viene_otra_iglesia ?? null;
+        $this->bautizado = $user->bautizado ?? null;
         $this->fecha_nacimiento = $user->fecha_nacimiento ? $user->fecha_nacimiento->format('Y-m-d') : null;
         $this->fecha_conversion = $user->fecha_conversion ? $user->fecha_conversion->format('Y-m-d') : null;
         $this->invitador_id = $user->invitador_id ?? null;
 
-        // Obtenemos roles y permisos actuales del usuario en IDs
-        $this->selectedRoles = $user->roles()->pluck('id')->toArray();
-        $this->selectedPermissions = $user->permissions()->pluck('id')->toArray();
-
-        $this->edit_user_modal = true;
+        $this->edit_creyente_modal = true;
     }
 
     /**
      * Actualiza datos del usuario
      */
-    public function updateUser()
+    public function updateCreyente()
     {
         $this->validate([
-            'userName'     => 'required|string',
-            'userUsername'    => 'required|string|unique:users,username,' . $this->editing_user_id,
-            'userEmail'    => 'required|email|unique:users,email,' . $this->editing_user_id,
-            'userPassword' => 'nullable|min:6|confirmed',
+            'creyenteName'    => 'required|string',
             'numero_telefono' => 'nullable|string',
             'direccion' => 'nullable|string',
             'genero_id' => 'nullable|exists:generos,id',
@@ -279,20 +221,23 @@ class Index extends Component
             'fecha_nacimiento' => 'nullable|string',
             'fecha_conversion' => 'nullable|string',
             'invitador_id' => 'nullable|exists:users,id',
-            // 'userPassword_confirmation' => 'required_with:userPassword|same:userPassword|min:6'
+            'viene_otra_iglesia' => 'nullable|boolean',
+            'bautizado' => 'nullable|boolean',
         ]);
 
-        $user = User::findOrFail($this->editing_user_id);
+        $user = User::findOrFail($this->editing_creyente_id);
 
         $data = [
-            'name'  => $this->userName,
-            'username' => $this->userUsername,
-            'email' => $this->userEmail,
+            'name'  => $this->creyenteName,
+            'username' => strtolower($this->creyenteName),
+            'email' => strtolower($this->creyenteName) . '@arca-del-espiritu-santo.com',
             'numero_telefono' => $this->numero_telefono,
             'direccion' => $this->direccion,
             'genero_id' => $this->genero_id,
             'estado_civil_id' => $this->estado_civil_id,
             'profesion' => $this->profesion,
+            'viene_otra_iglesia' => $this->viene_otra_iglesia,
+            'bautizado' => $this->bautizado,
             'fecha_nacimiento' => $this->fecha_nacimiento ? Carbon::parse($this->fecha_nacimiento)->format('Y-m-d') : null,
             'fecha_conversion' => $this->fecha_conversion ? Carbon::parse($this->fecha_conversion)->format('Y-m-d') : null,
             'invitador_id' => $this->invitador_id,
@@ -305,37 +250,26 @@ class Index extends Component
 
         $user->update($data);
 
-        // Sincronizar roles y permisos
-        $rolesNames = Role::whereIn('id', $this->selectedRoles)->pluck('name')->toArray();
-        $user->syncRoles($rolesNames);
-
-        $permissionsNames = Permission::whereIn('id', $this->selectedPermissions)->pluck('name')->toArray();
-        $user->syncPermissions($permissionsNames);
-
         $this->reset([
-            'edit_user_modal',
-            'editing_user_id',
-            'userName',
-            'userUsername',
-            'userEmail',
-            'userPassword',
-            'userPassword_confirmation',
+            'edit_creyente_modal',
+            'editing_creyente_id',
+            'creyenteName',
             'numero_telefono',
             'direccion',
             'genero_id',
             'estado_civil_id',
             'profesion',
+            'viene_otra_iglesia',
+            'bautizado',
             'fecha_nacimiento',
             'fecha_conversion',
             'invitador_id',
-            'selectedRoles',
-            'selectedPermissions'
         ]);
 
         $this->toast(
             type: 'success',
             title: 'Actualizado',
-            description: 'Usuario Actualizado Con Éxito',
+            description: 'Creyente Actualizado Con Éxito',
             icon: 'o-information-circle',
             css: 'alert-success text-white text-sm',
             timeout: 3000,
@@ -345,7 +279,7 @@ class Index extends Component
     /**
      * Elimina un usuario
      */
-    public function deleteUser(int $userId)
+    public function deleteCreyente(int $userId)
     {
         $user = User::findOrFail($userId);
 
@@ -374,18 +308,45 @@ class Index extends Component
     /**
      * Redirecciona a la vista "show" (detalle) del usuario
      */
-    public function viewUser(string $userId)
+    public function viewCreyente(string $userId)
     {
         return redirect()->route('users.show', $userId);
     }
 
-    public function toggleStatus(int $userId)
+    public function openUpdateAvatarModal(int $userId)
     {
-        $user = User::findOrFail($userId);
-        $user->status = !$user->status;
-        $user->save();
+        $this->selected_user_id = $userId;
+        $this->reset('newAvatar');
+        $this->update_avatar_modal = true;
+    }
 
-        $this->success('Estado actualizado correctamente');
+    public function saveAvatar()
+    {
+        $this->validate([
+            'newAvatar' => 'image|max:1024',
+        ]);
+
+        $user = User::findOrFail($this->selected_user_id);
+
+        $path = $this->newAvatar->store('avatars', 'public');
+
+        $user->update(['avatar' => $path]);
+
+        $this->reset(['newAvatar', 'update_avatar_modal', 'selected_user_id']);
+
+        $this->toast(
+            type: 'success',
+            title: 'Avatar Actualizado',
+            description: 'El avatar del creyente fue actualizado con éxito',
+            icon: 'o-check-circle',
+            css: 'alert-success text-white text-sm',
+            timeout: 3000,
+        );
+    }
+
+    public function closeUpdateAvatarModal()
+    {
+        $this->reset(['newAvatar', 'update_avatar_modal', 'selected_user_id']);
     }
 
     /**
@@ -396,20 +357,30 @@ class Index extends Component
         if (auth()->user()->hasRole(['master'])) {
             $users = User::with('roles', 'permissions')
                 ->where('name', 'like', '%' . $this->search . '%')
-                ->whereDoesntHave('roles', function ($query) {
+                ->whereHas('roles', function ($query) {
                     $query->where('name', 'creyente');
                 })
-                ->orderBy(...array_values($this->sortBy))
+                ->whereRaw('(
+                    SELECT COUNT(*) 
+                    FROM model_has_roles 
+                    WHERE model_has_roles.model_id = users.id 
+                    AND model_has_roles.model_type = ?
+                ) = 1', [User::class])                ->orderBy(...array_values($this->sortBy))
                 ->paginate(10);
         } else {
             $users = User::with('roles', 'permissions')
                 ->whereHas('roles', function ($query) {
                     $query->where('name', '!=', 'master');
                 })
-                ->whereDoesntHave('roles', function ($query) {
+                ->whereHas('roles', function ($query) {
                     $query->where('name', 'creyente');
                 })
-                ->where('name', 'like', '%' . $this->search . '%')
+                ->whereRaw('(
+                    SELECT COUNT(*) 
+                    FROM model_has_roles 
+                    WHERE model_has_roles.model_id = users.id 
+                    AND model_has_roles.model_type = ?
+                ) = 1', [User::class])                ->where('name', 'like', '%' . $this->search . '%')
                 ->orderBy(...array_values($this->sortBy))
                 ->paginate(10);
         }
@@ -419,7 +390,7 @@ class Index extends Component
         $generos = Genero::all();
         $estados_civiles = EstadoCivil::all();
 
-        return view('livewire.user.v1.index', [
+        return view('livewire.creyentes.v1.index', [
             'headers' => $this->headers,
             'sortBy'  => $this->sortBy,
             'users'   => $users,

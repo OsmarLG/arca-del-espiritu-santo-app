@@ -51,7 +51,11 @@ class RolePermissionUserSeeder extends Seeder
             ["name" => "view_menu_notifications"],
             ["name" => "view_menu_users"],
             ["name" => "view_menu_logs"],
-            ["name" => "view_menu_settings"]
+            ["name" => "view_menu_settings"],
+            ["name" => "view_menu_consolidacion"],
+            ["name" => "view_menu_consolidando"],
+            ["name" => "view_menu_creyentes"],
+            ["name" => "view_any_creyente"],
         ];
 
         foreach ($permissions as $permission) {
@@ -62,6 +66,17 @@ class RolePermissionUserSeeder extends Seeder
         $masterRole = Role::create(['name' => 'master']);
         $adminRole = Role::create(['name' => 'admin']);
         $userRole = Role::create(['name' => 'users']);
+        $settingsRole = Role::create(['name' => 'settings']);
+        $consolidatorRole = Role::create(['name' => 'consolidador']);
+        $creyenteRole = Role::create(['name' => 'creyente']);
+        $hijoRole = Role::create(['name' => 'hijo']);
+        $discipuloRole = Role::create(['name' => 'discipulo']);
+        $liderRole = Role::create(['name' => 'lider']);
+        $maestroRole = Role::create(['name' => 'maestro']);
+        $evangelistaRole = Role::create(['name' => 'evangelista']);
+        $profetaRole = Role::create(['name' => 'profeta']);
+        $madreEspiritualRole = Role::create(['name' => 'madre_espiritual']);
+        $padreEspiritualRole = Role::create(['name' => 'padre_espiritual']);
 
         // Asignar permisos a roles
         $masterRole->givePermissionTo(Permission::all());
@@ -91,34 +106,83 @@ class RolePermissionUserSeeder extends Seeder
         $adminRole->givePermissionTo($adminPermissions);
 
         // Crear usuarios
-        $master = User::create([
-            'username' => 'master',
+        $osmar = User::create([
+            'username' => 'osmarlg',
             'name' => 'Osmar Liera',
-            'email' => 'master@app.liartechnologies.com',
+            'email' => 'osmarlg@app.liartechnologies.com',
             'email_verified_at' => now(),
             'avatar' => null,
+            'viene_otra_iglesia' => false,
+            'bautizado' => false,
             'password' => Hash::make('Osmarsito0603'),
         ]);
-        $master->assignRole($masterRole);
+        $osmar->assignRole($masterRole);
 
-        $admin = User::create([
-            'username' => 'admin',
-            'name' => 'Admin User',
-            'email' => 'admin@app.liartechnologies.com',
+        $midia = User::create([
+            'username' => 'midia',
+            'name' => 'Midia',
+            'email' => 'midia@app.liartechnologies.com',
+            'email_verified_at' => now(),
+            'avatar' => null,
+            'viene_otra_iglesia' => true,
+            'bautizado' => true,
+            'password' => Hash::make('Midia2025'),
+        ]);
+        $midia->assignRole($adminRole);
+
+        $papaDaniel = User::create([
+            'username' => 'papadaniel',
+            'name' => 'Papa Daniel',
+            'email' => 'papadaniel@app.liartechnologies.com',
+            'email_verified_at' => now(),
+            'avatar' => null,
+            'viene_otra_iglesia' => true,
+            'bautizado' => true,
+            'password' => Hash::make('PapaDaniel2025'),
+        ]);
+        $papaDaniel->assignRole($adminRole);
+        $papaDaniel->assignRole($padreEspiritualRole);
+        
+        $mamaDey = User::create([
+            'username' => 'mamadey',
+            'name' => 'Mama Dey',
+            'email' => 'mamadey@app.liartechnologies.com',
+            'email_verified_at' => now(),
+            'avatar' => null,
+            'viene_otra_iglesia' => true,
+            'bautizado' => true,
+            'password' => Hash::make('MamaDey2025'),
+        ]);
+        $mamaDey->assignRole($adminRole);
+        $mamaDey->assignRole($madreEspiritualRole);
+
+        $karina = User::create([
+            'username' => 'karina',
+            'name' => 'Karina',
+            'email' => 'karina@app.liartechnologies.com',
+            'email_verified_at' => now(),
+            'avatar' => null,
+            'viene_otra_iglesia' => true,
+            'bautizado' => true,
+            'password' => Hash::make('Karina2025'),
+        ]);
+        $karina->assignRole($adminRole);
+        
+        $creyente = User::create([
+            'username' => 'creyente',
+            'name' => 'Creyente',
+            'email' => 'creyente@app.liartechnologies.com',
             'email_verified_at' => now(),
             'avatar' => null,
             'password' => Hash::make('password'),
+            'status' => 0,
+            'viene_otra_iglesia' => false,
+            'bautizado' => false,
+            'fecha_conversion' => now(),
         ]);
-        $admin->assignRole($adminRole);
+        $creyente->assignRole($creyenteRole);
+        $creyentePermissions = $additionalUsersPermissions;
+        $creyente->givePermissionTo($creyentePermissions);
 
-        $user = User::create([
-            'username' => 'user',
-            'name' => 'User',
-            'email' => 'user@app.liartechnologies.com',
-            'email_verified_at' => now(),
-            'avatar' => null,
-            'password' => Hash::make('password'),
-        ]);
-        $user->assignRole($userRole);
     }
 }

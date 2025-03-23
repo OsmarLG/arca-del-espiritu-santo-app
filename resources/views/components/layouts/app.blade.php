@@ -118,6 +118,13 @@
                             @endif
                         </x-menu-sub>
                     @endif
+                    @if ($user->hasPermissionTo('view_menu_creyentes'))
+                        <x-menu-sub title="Creyentes" icon="o-users">
+                            @if ($user->hasPermissionTo('view_any_creyente'))
+                                <x-menu-item title="Catálogo" icon="o-user-circle" link="{{ route('creyentes.index') }}" />
+                            @endif
+                        </x-menu-sub>
+                    @endif
                     @if ($user->hasPermissionTo('view_menu_security'))
                         <x-menu-sub title="Security" icon="o-lock-closed">
                             @if ($user->hasPermissionTo('view_any_role'))

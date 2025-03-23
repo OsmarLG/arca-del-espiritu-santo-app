@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->boolean('status')->default(true)->after('password');
+            $table->boolean('viene_otra_iglesia')->nullable()->default(false)->after('status');
+            $table->boolean('bautizado')->nullable()->default(false)->after('viene_otra_iglesia');
         });
     }
 

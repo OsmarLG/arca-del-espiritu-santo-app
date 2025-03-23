@@ -37,6 +37,15 @@
                     <p><strong>Nombre:</strong> {{ $user->name }}</p>
                     <p><strong>Username:</strong> {{ $user->username }}</p>
                     <p><strong>Email:</strong> {{ $user->email }}</p>
+                    <p><strong>Numero de Telefono:</strong> {{ $user->numero_telefono ?? '-'}}</p>
+                    <p><strong>Direccion:</strong> {{ $user->direccion ?? '-' }}</p>
+                    <p><strong>Genero:</strong> {{ $user->genero->nombre ?? '-' }}</p>
+                    <p><strong>Estado Civil:</strong> {{ $user->estado_civil->nombre ?? '-' }}</p>
+                    <p><strong>Fecha de Nacimiento:</strong> {{ $user->fecha_nacimiento ?? '-' }}</p>
+                    <p><strong>Fecha de Conversion:</strong> {{ $user->fecha_conversion ?? '-' }}</p>
+                    <p><strong>Profesion:</strong> {{ $user->profesion ?? '-' }}</p>
+                    <p><strong>Edad:</strong> {{ $user->edad() ?? '-' }}</p>
+                    <p><strong>Invitador:</strong> {{ $user->invitador->name ?? '-' }}</p>
                 </x-card>
             </div>
         </x-tab>
