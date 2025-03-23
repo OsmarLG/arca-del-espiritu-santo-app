@@ -37,7 +37,8 @@ class Index extends Component
     public ?bool $viene_otra_iglesia = null;
     public ?bool $bautizado = null;
     public $avatar;
-    public $newAvatar;
+    public $newAvatarGallery;
+    public $newAvatarCamera;
     public bool $continuarCreando = false;
 
     // Cabeceras de la tabla
@@ -84,7 +85,8 @@ class Index extends Component
             'viene_otra_iglesia',
             'bautizado',
             'avatar',
-            'newAvatar',
+            'newAvatarGallery',
+            'newAvatarCamera',
             'fecha_conversion',
             'fecha_nacimiento',
             'invitador_id',
@@ -104,7 +106,8 @@ class Index extends Component
             'genero_id' => 'nullable|exists:generos,id',
             'estado_civil_id' => 'nullable|exists:estados_civiles,id',
             'profesion' => 'nullable|string',
-            'newAvatar' => 'nullable|image|max:1024',
+            'newAvatarGallery' => 'nullable|image',
+            'newAvatarCamera' => 'nullable|image',
             'viene_otra_iglesia' => 'nullable|boolean',
             'bautizado' => 'nullable|boolean',
             'fecha_nacimiento' => 'nullable|string',
@@ -259,6 +262,8 @@ class Index extends Component
             'genero_id',
             'estado_civil_id',
             'profesion',
+            'newAvatarGallery',
+            'newAvatarCamera',
             'viene_otra_iglesia',
             'bautizado',
             'fecha_nacimiento',
@@ -316,23 +321,36 @@ class Index extends Component
     public function openUpdateAvatarModal(int $userId)
     {
         $this->selected_user_id = $userId;
-        $this->reset('newAvatar');
+        $this->reset('newAvatarGallery', 'newAvatarCamera');
         $this->update_avatar_modal = true;
     }
 
     public function saveAvatar()
     {
+        $avatarToUse = $this->newAvatarGallery ?? $this->newAvatarCamera;
+
+        if (!$avatarToUse) {
+            $this->toast(
+                type: 'error',
+                title: 'Sin Imagen',
+                description: 'No se seleccionó ninguna imagen.',
+                icon: 'o-exclamation-circle',
+                css: 'alert-error text-white text-sm',
+                timeout: 3000,
+            );
+            return;
+        }
+
         $this->validate([
-            'newAvatar' => 'image|max:1024',
+            $this->newAvatarGallery ? 'newAvatarGallery' : 'newAvatarCamera' => 'image',
         ]);
 
         $user = User::findOrFail($this->selected_user_id);
-
-        $path = $this->newAvatar->store('avatars', 'public');
+        $path = $avatarToUse->store('avatars', 'public');
 
         $user->update(['avatar' => $path]);
 
-        $this->reset(['newAvatar', 'update_avatar_modal', 'selected_user_id']);
+        $this->reset(['newAvatarGallery', 'newAvatarCamera', 'update_avatar_modal', 'selected_user_id']);
 
         $this->toast(
             type: 'success',
@@ -346,7 +364,7 @@ class Index extends Component
 
     public function closeUpdateAvatarModal()
     {
-        $this->reset(['newAvatar', 'update_avatar_modal', 'selected_user_id']);
+        $this->reset(['newAvatarGallery', 'newAvatarCamera', 'update_avatar_modal', 'selected_user_id']);
     }
 
     /**
@@ -365,7 +383,7 @@ class Index extends Component
                     FROM model_has_roles 
                     WHERE model_has_roles.model_id = users.id 
                     AND model_has_roles.model_type = ?
-                ) = 1', [User::class])                ->orderBy(...array_values($this->sortBy))
+                ) = 1', [User::class])->orderBy(...array_values($this->sortBy))
                 ->paginate(10);
         } else {
             $users = User::with('roles', 'permissions')
@@ -380,7 +398,7 @@ class Index extends Component
                     FROM model_has_roles 
                     WHERE model_has_roles.model_id = users.id 
                     AND model_has_roles.model_type = ?
-                ) = 1', [User::class])                ->where('name', 'like', '%' . $this->search . '%')
+                ) = 1', [User::class])->where('name', 'like', '%' . $this->search . '%')
                 ->orderBy(...array_values($this->sortBy))
                 ->paginate(10);
         }

@@ -219,13 +219,30 @@
     <x-modal wire:model="update_avatar_modal" title="Actualizar Avatar" subtitle="Selecciona la nueva imagen"
         separator>
         <x-form wire:submit.prevent="saveAvatar">
-            <div class="flex justify-center">
-                <x-file wire:model="newAvatar" accept="image/*" crop-after-change>
-                    <div class="w-40 h-40 rounded-full bg-black flex items-center justify-center">
-                        <img src="{{ $newAvatar ? $newAvatar->temporaryUrl() : ($selected_user_id ? asset('storage/' . \App\Models\User::find($selected_user_id)?->avatar) : asset('storage/user.png')) }}"
-                            class="w-full h-full object-cover rounded-full" />
-                    </div>
-                </x-file>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                {{-- Desde Galería --}}
+                <div class="flex flex-col items-center">
+                    <label class="mb-2 text-sm font-semibold text-center">Desde Galería</label>
+                    <x-file wire:model="newAvatarGallery" id="gallery-upload-creyente" accept="image/*"
+                        crop-after-change>
+                        <div class="w-40 h-40 rounded-full bg-black flex items-center justify-center">
+                            <img src="{{ $newAvatarGallery ? $newAvatarGallery->temporaryUrl() : ($selected_user_id ? asset('storage/' . \App\Models\User::find($selected_user_id)?->avatar) : asset('storage/user.png')) }}"
+                                class="w-full h-full object-cover rounded-full" />
+                        </div>
+                    </x-file>
+                </div>
+
+                {{-- Desde Cámara --}}
+                <div class="flex flex-col items-center">
+                    <label class="mb-2 text-sm font-semibold text-center">Tomar Foto</label>
+                    <x-file wire:model="newAvatarCamera" id="camera-upload-creyente" accept="image/*" capture="user"
+                        crop-after-change>
+                        <div class="w-40 h-40 rounded-full bg-black flex items-center justify-center">
+                            <img src="{{ $newAvatarCamera ? $newAvatarCamera->temporaryUrl() : ($selected_user_id ? asset('storage/' . \App\Models\User::find($selected_user_id)?->avatar) : asset('storage/user.png')) }}"
+                                class="w-full h-full object-cover rounded-full" />
+                        </div>
+                    </x-file>
+                </div>
             </div>
 
             <x-slot:actions>
