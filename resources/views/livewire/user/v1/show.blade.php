@@ -44,7 +44,7 @@
                     <p><strong>Fecha de Nacimiento:</strong> {{ $user->fecha_nacimiento ?? '-' }}</p>
                     <p><strong>Fecha de Conversion:</strong> {{ $user->fecha_conversion ?? '-' }}</p>
                     <p><strong>Profesion:</strong> {{ $user->profesion ?? '-' }}</p>
-                    <p><strong>Edad:</strong> {{ $user->edad() ?? '-' }}</p>
+                    <p><strong>Edad:</strong> {{ $user->edad ?? '-' }}</p>
                     <p><strong>Invitador:</strong> {{ $user->invitador->name ?? '-' }}</p>
                 </x-card>
             </div>

@@ -34,8 +34,8 @@ class Index extends Component
     public ?int $genero_id = null;
     public ?int $estado_civil_id = null;
     public ?string $profesion = null;
-    public ?Carbon $fecha_nacimiento = null;
-    public ?Carbon $fecha_conversion = null;
+    public ?string $fecha_nacimiento = null;
+    public ?string $fecha_conversion = null;
     public ?int $invitador_id = null;
 
     // Roles y Permisos disponibles (para selects/checkboxes)

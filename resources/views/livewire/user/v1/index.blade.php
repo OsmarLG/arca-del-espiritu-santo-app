@@ -55,7 +55,19 @@
         @endscope
 
         @scope('cell_numero_telefono', $user)
-            {{ $user->numero_telefono ?? '-' }}
+            @if ($user->numero_telefono)
+                <div class="flex flex-col gap-1">
+                    <a href="tel:{{ $user->numero_telefono }}" class="text-blue-500 hover:underline" target="_blank">
+                        📞 {{ $user->numero_telefono }}
+                    </a>
+                    <a href="https://wa.me/{{ preg_replace('/\D/', '', $user->numero_telefono) }}"
+                        class="text-green-500 hover:underline" target="_blank">
+                        💬 WhatsApp
+                    </a>
+                </div>
+            @else
+                <span class="text-gray-500">-</span>
+            @endif
         @endscope
 
         @scope('cell_direccion', $user)

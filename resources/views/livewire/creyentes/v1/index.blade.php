@@ -89,7 +89,7 @@
         @endscope
 
         @scope('cell_fecha_conversion', $user)
-            {{ $user->fecha_conversion->format('d-m-Y') ?? '-' }}
+            {{ $user->fecha_conversion ? $user->fecha_conversion->format('d-m-Y') : '-' }}
         @endscope
 
         @scope('cell_viene_otra_iglesia', $user)
