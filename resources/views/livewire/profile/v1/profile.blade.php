@@ -77,24 +77,37 @@
             Datos de Acceso</button>
     </form>
 
-    {{-- Modal para crear roles --}}
-    <x-modal wire:model="update_avatar_modal" title="Actualizar Avatar" subtitle="Selecciona y recorta tu nueva imagen"
-        separator>
+    <x-modal wire:model="update_avatar_modal" title="Actualizar Avatar" subtitle="Selecciona y recorta tu nueva imagen" separator>
         <x-form wire:submit.prevent="saveAvatar">
-            <div class="flex justify-center">
-                <x-file wire:model="newAvatar" accept="image/png, image/jpg, image/jpeg" crop-after-change>
-                    <div class="w-40 h-40 rounded-full bg-black flex items-center justify-center">
-                        <img src="{{ $newAvatar ? $newAvatar->temporaryUrl() : ($user->avatar ? asset('storage/' . $user->avatar) : asset('storage/user.png')) }}"
-                            class="w-full h-full object-cover rounded-full" />
-                    </div>
-                </x-file>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                {{-- Galería --}}
+                <div class="flex flex-col items-center">
+                    <label class="mb-2 text-sm font-semibold text-center">Desde Galería</label>
+                    <x-file wire:model="newAvatarGallery" id="gallery-upload" accept="image/*" crop-after-change>
+                        <div class="w-40 h-40 rounded-full bg-black flex items-center justify-center">
+                            <img src="{{ $newAvatarGallery ? $newAvatarGallery->temporaryUrl() : ($user->avatar ? asset('storage/' . $user->avatar) : asset('storage/user.png')) }}"
+                                class="w-full h-full object-cover rounded-full" />
+                        </div>
+                    </x-file>
+                </div>
+    
+                {{-- Cámara --}}
+                <div class="flex flex-col items-center">
+                    <label class="mb-2 text-sm font-semibold text-center">Tomar Foto</label>
+                    <x-file wire:model="newAvatarCamera" id="camera-upload" accept="image/*" capture="user" crop-after-change>
+                        <div class="w-40 h-40 rounded-full bg-black flex items-center justify-center">
+                            <img src="{{ $newAvatarCamera ? $newAvatarCamera->temporaryUrl() : ($user->avatar ? asset('storage/' . $user->avatar) : asset('storage/user.png')) }}"
+                                class="w-full h-full object-cover rounded-full" />
+                        </div>
+                    </x-file>
+                </div>
             </div>
-
+    
             <x-slot:actions>
                 <x-button label="Cancelar" @click="$wire.update_avatar_modal = false" />
                 <x-button label="Guardar" class="btn-primary" type="submit" />
             </x-slot:actions>
         </x-form>
     </x-modal>
-
+    
 </div>

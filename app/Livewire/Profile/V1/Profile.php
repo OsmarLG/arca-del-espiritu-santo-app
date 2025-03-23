@@ -18,7 +18,8 @@ class Profile extends Component
     public $email;
     public $username;
     public $avatar;
-    public $newAvatar;
+    public $newAvatarGallery;
+    public $newAvatarCamera;
     public $current_password;
     public $new_password;
     public $new_password_confirmation;
@@ -93,22 +94,31 @@ class Profile extends Component
 
     public function saveAvatar()
     {
+        $avatarToUse = $this->newAvatarGallery ?? $this->newAvatarCamera;
+
+        if (!$avatarToUse) {
+            $this->toast(
+                type: 'error',
+                title: 'Sin Imagen',
+                description: 'No se seleccionó ninguna imagen.',
+                icon: 'o-exclamation-circle',
+                css: 'alert-error text-white text-sm',
+                timeout: 3000,
+            );
+            return;
+        }
+
         $this->validate([
-            'newAvatar' => 'image|max:1024', // Máximo 1MB
+            $this->newAvatarGallery ? 'newAvatarGallery' : 'newAvatarCamera' => 'image',
         ]);
 
-        // Guardar la imagen en storage
-        $path = $this->newAvatar->store('avatars', 'public');
+        $path = $avatarToUse->store('avatars', 'public');
 
-        // Actualizar el usuario con la nueva imagen
         $this->user->update(['avatar' => $path]);
 
-        // Resetear el campo para limpiar la selección
-        $this->reset('newAvatar');
-
+        $this->reset(['newAvatarGallery', 'newAvatarCamera']);
         $this->update_avatar_modal = false;
 
-        // Mostrar notificación de éxito
         $this->toast(
             type: 'success',
             title: 'Avatar Actualizado',
@@ -123,7 +133,7 @@ class Profile extends Component
 
     public function openUpdateAvatarModal()
     {
-        $this->reset(['newAvatar']);
+        $this->reset(['newAvatarGallery', 'newAvatarCamera']);
         $this->update_avatar_modal = true;
     }
 
