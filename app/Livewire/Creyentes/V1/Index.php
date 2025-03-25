@@ -11,6 +11,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
+use Illuminate\Support\Str;
 
 class Index extends Component
 {
@@ -40,6 +41,9 @@ class Index extends Component
     public $newAvatarGallery;
     public $newAvatarCamera;
     public bool $continuarCreando = false;
+
+    public $actionUserId = null;
+    public $showActionsModal = false;
 
     // Cabeceras de la tabla
     public array $headers = [
@@ -116,11 +120,18 @@ class Index extends Component
             // 'userPassword_confirmation' => 'required_with:userPassword|same:userPassword|min:6'
         ]);
 
+        // Generar base sin espacios ni caracteres especiales
+        $baseUsername = Str::slug($this->creyenteName, '_');
+
+        // Agregar sufijo único (por ejemplo, timestamp corto o número aleatorio)
+        $suffix = now()->format('His'); // Hora-Minuto-Segundo, o puedes usar rand(100, 999)
+        $finalUsername = $baseUsername . '_' . $suffix;
+
         // Creamos el usuario
         $user = User::create([
             'name'     => $this->creyenteName,
-            'username'    => strtolower($this->creyenteName),
-            'email'    => strtolower($this->creyenteName) . '@arca-del-espiritu-santo.com',
+            'username'    => strtolower($finalUsername),
+            'email'    => strtolower($finalUsername) . '@arca-del-espiritu-santo.com',
             'numero_telefono' => $this->numero_telefono,
             'direccion' => $this->direccion,
             'genero_id' => $this->genero_id,
@@ -206,6 +217,7 @@ class Index extends Component
         $this->fecha_conversion = $user->fecha_conversion ? $user->fecha_conversion->format('Y-m-d') : null;
         $this->invitador_id = $user->invitador_id ?? null;
 
+        $this->showActionsModal = false;
         $this->edit_creyente_modal = true;
     }
 
@@ -287,6 +299,7 @@ class Index extends Component
     public function deleteCreyente(int $userId)
     {
         $user = User::findOrFail($userId);
+        $this->showActionsModal = false;
 
         // Evitar eliminar a usuario master, o a ti mismo, según tu lógica
         if ($user->id === auth()->id()) {
@@ -321,6 +334,7 @@ class Index extends Component
     public function openUpdateAvatarModal(int $userId)
     {
         $this->selected_user_id = $userId;
+        $this->showActionsModal = false;
         $this->reset('newAvatarGallery', 'newAvatarCamera');
         $this->update_avatar_modal = true;
     }
@@ -366,6 +380,38 @@ class Index extends Component
     {
         $this->reset(['newAvatarGallery', 'newAvatarCamera', 'update_avatar_modal', 'selected_user_id']);
     }
+
+    public function convertirADiscipulo(int $userId)
+    {
+        $user = User::findOrFail($userId);
+        $this->showActionsModal = false;
+        if ($user->hasRole('creyente')) {
+            $user->removeRole('creyente');
+        }
+
+        if (!$user->hasRole('discipulo')) {
+            $user->assignRole('discipulo');
+        }
+
+        $user->password = Hash::make('Arca2025');
+        $user->save();
+
+        $this->toast(
+            type: 'success',
+            title: 'Rol Actualizado',
+            description: 'El usuario ahora es un discípulo.',
+            icon: 'o-check-circle',
+            css: 'alert-success text-white text-sm',
+            timeout: 3000,
+        );
+    }
+
+    public function openActionsModal($userId)
+    {
+        $this->actionUserId = $userId;
+        $this->showActionsModal = true;
+    }
+
 
     /**
      * Renderiza la vista con la lista de usuarios

@@ -43,11 +43,6 @@
             @endif
         @endscope
 
-        {{-- Sobrescribe la celda del nombre del User --}}
-        @scope('cell_name', $user)
-            <x-badge :value="$user->name" class="badge-primary" />
-        @endscope
-
         @scope('cell_status', $user)
             <x-button icon="{{ $user->status ? 'o-check-circle' : 'o-x-circle' }}"
                 class="{{ $user->status ? 'btn-info' : 'btn-danger' }}" wire:click="toggleStatus({{ $user->id }})">

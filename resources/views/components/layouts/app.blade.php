@@ -7,7 +7,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
     {{-- <link rel="icon" type="image/png" href="{{ asset('storage/jaguar-removebg.png') }}"> --}}
-    <link rel="icon" type="image/png" href="{{ asset(\App\Models\Setting::get('app_logo', 'storage/jaguar-removebg.png')) }}">
+    <link rel="icon" type="image/png"
+        href="{{ asset(\App\Models\Setting::get('app_logo', 'storage/jaguar-removebg.png')) }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/robsontenorio/mary@0.44.2/libs/currency/currency.js">
     </script>
@@ -25,10 +26,11 @@
             {{-- Brand --}}
             <div class="sm:inline-flex items-center space-x-2">
                 {{-- <img src="{{ asset('storage/jaguar-removebg.png') }}" alt="Logo"> --}}
-                <img src="{{ asset(\App\Models\Setting::get('app_logo', 'storage/jaguar-removebg.png')) }}" 
-                class="w-10 h-10 object-cover rounded-lg" />
+                <img src="{{ asset(\App\Models\Setting::get('app_logo', 'storage/jaguar-removebg.png')) }}"
+                    class="w-10 h-10 object-cover rounded-lg" />
                 {{-- <h1 class="font-bold text-2xl">{{ config('app.name') }}</h1> --}}
-                <h1 class="hidden sm:block font-bold text-2xl">{{ \App\Models\Setting::get('app_name', config('app.name')) }}</h1>
+                <h1 class="hidden sm:block font-bold text-2xl">
+                    {{ \App\Models\Setting::get('app_name', config('app.name')) }}</h1>
             </div>
         </x-slot:brand>
 
@@ -105,10 +107,23 @@
             @if ($user = auth()->user())
                 <x-menu activate-by-route title="">
                     <x-menu-item title="Dashboard" icon="o-home" link="{{ route('dashboard') }}" />
-                    @if ($user->hasPermissionTo('view_menu_settings'))
-                        <x-menu-sub title="Settings" icon="o-cog-6-tooth">
-                            {{-- <x-menu-item title="Archives" icon="o-archive-box" link="####" /> --}}
-                            <x-menu-item title="App" icon="o-cog-6-tooth" link="{{ route('settings.app') }}" />
+
+                    @if ($user->hasPermissionTo('view_menu_ministerios'))
+                        <x-menu-sub title="Ministerios" icon="o-building-library">
+                            @if ($user->hasPermissionTo('view_menu_misericordia'))
+                                <x-menu-sub title="Misericordia">
+                                    <x-menu-item title="Dashboard" link="{{ route('ministerios.misericordia.index') }}" />
+                                    <x-menu-item title="Productos" link="{{ route('ministerios.misericordia.productos') }}" />
+                                    <x-menu-item title="Categorías" link="{{ route('ministerios.misericordia.categorias') }}" />
+                                </x-menu-sub>
+                            @endif
+                        </x-menu-sub>
+                    @endif
+                    @if ($user->hasPermissionTo('view_menu_familias'))
+                        <x-menu-sub title="Familias" icon="o-users">
+                            @if ($user->hasPermissionTo('view_any_familia'))
+                                <x-menu-item title="Catálogo" icon="o-user-circle" link="{{ route('familias.index') }}" />
+                            @endif
                         </x-menu-sub>
                     @endif
                     @if ($user->hasPermissionTo('view_menu_users'))
@@ -121,7 +136,8 @@
                     @if ($user->hasPermissionTo('view_menu_creyentes'))
                         <x-menu-sub title="Creyentes" icon="o-users">
                             @if ($user->hasPermissionTo('view_any_creyente'))
-                                <x-menu-item title="Catálogo" icon="o-user-circle" link="{{ route('creyentes.index') }}" />
+                                <x-menu-item title="Catálogo" icon="o-user-circle"
+                                    link="{{ route('creyentes.index') }}" />
                             @endif
                         </x-menu-sub>
                     @endif
@@ -138,6 +154,12 @@
                     @endif
                     @if ($user->hasPermissionTo('view_menu_profile'))
                         <x-menu-item title="Perfil" icon="o-user" link="{{ route('profile.index') }}" />
+                    @endif
+                    @if ($user->hasPermissionTo('view_menu_settings'))
+                        <x-menu-sub title="Settings" icon="o-cog-6-tooth">
+                            {{-- <x-menu-item title="Archives" icon="o-archive-box" link="####" /> --}}
+                            <x-menu-item title="App" icon="o-cog-6-tooth" link="{{ route('settings.app') }}" />
+                        </x-menu-sub>
                     @endif
                 </x-menu>
                 <hr>

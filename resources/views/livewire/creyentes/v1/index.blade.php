@@ -43,11 +43,6 @@
             @endif
         @endscope
 
-        {{-- Sobrescribe la celda del nombre del User --}}
-        @scope('cell_name', $user)
-            <x-badge :value="$user->name" class="badge-primary" />
-        @endscope
-
         @scope('cell_numero_telefono', $user)
             {{ $user->numero_telefono ?? '-' }}
         @endscope
@@ -118,11 +113,9 @@
 
         {{-- Sobrescribe las acciones --}}
         @scope('actions', $user)
-            <div class="flex gap-2">
-                <x-button icon="o-camera" wire:click="openUpdateAvatarModal({{ $user->id }})" spinner class="btn-sm" />
-                <x-button icon="o-eye" wire:click="viewCreyente({{ $user->id }})" spinner class="btn-sm" />
-                <x-button icon="o-pencil" wire:click="editCreyente({{ $user->id }})" spinner class="btn-sm" />
-                <x-button icon="o-trash" wire:click="deleteCreyente({{ $user->id }})" spinner class="btn-sm" />
+            <div class="relative flex gap-2 items-center overflow-visible">
+                <x-button icon="o-cog" class="btn-sm btn-circle btn-outline"
+                    wire:click="openActionsModal({{ $user->id }})" />
             </div>
         @endscope
 
@@ -250,5 +243,19 @@
                 <x-button label="Guardar" class="btn-primary" type="submit" />
             </x-slot:actions>
         </x-form>
+    </x-modal>
+
+    <x-modal wire:model="showActionsModal" title="Acciones" subtitle="Opciones disponibles">
+        <div class="flex flex-col gap-4">
+            <x-button label="Cambiar Avatar" icon="o-camera" class="btn-sm" wire:click="openUpdateAvatarModal({{ $actionUserId }})" />
+            <x-button label="Ver" icon="o-eye" class="btn-sm" wire:click="viewCreyente({{ $actionUserId }})" spinner />
+            <x-button label="Convertir a Discípulo" icon="o-user" class="btn-sm" wire:click="convertirADiscipulo({{ $actionUserId }})" />
+            <x-button label="Editar" icon="o-pencil" wire:click="editCreyente({{ $actionUserId }})" spinner class="btn-sm" />
+            <x-button label="Eliminar" icon="o-trash" wire:click="deleteCreyente({{ $actionUserId }})" spinner class="btn-sm" />
+        </div>
+
+        <x-slot:actions>
+            <x-button label="Cerrar" @click="$wire.showActionsModal = false" />
+        </x-slot:actions>
     </x-modal>
 </div>

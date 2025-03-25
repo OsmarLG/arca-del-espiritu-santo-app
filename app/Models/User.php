@@ -84,4 +84,14 @@ class User extends Authenticatable  implements MustVerifyEmail
     public function estado_civil() {
         return $this->belongsTo(EstadoCivil::class, 'estado_civil_id');
     }
+
+    public function familia()
+    {
+        return $this->belongsToMany(Familia::class);
+    }
+
+    public function donaciones()
+    {
+        return $this->hasMany(Donacion::class);
+    }
 }

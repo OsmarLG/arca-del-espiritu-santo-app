@@ -4,12 +4,16 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CreyentesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\FamiliasController;
+use App\Http\Controllers\MinisterioMisericordiaController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 
@@ -71,5 +75,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Grupo de rutas para Settings
     Route::prefix('settings')->group(function () {
         Route::get('/app', [SettingsController::class, 'app'])->name('settings.app');
+    });
+
+    // Grupo de rutas para Ministerios
+    Route::prefix('ministerios')->group(function () {
+        Route::get('/misericordia', [MinisterioMisericordiaController::class, 'index'])->name('ministerios.misericordia.index');
+        Route::get('/misericordia/productos', [MinisterioMisericordiaController::class, 'productos'])->name('ministerios.misericordia.productos');
+        Route::get('/misericordia/categorias', [MinisterioMisericordiaController::class, 'categorias'])->name('ministerios.misericordia.categorias');
+    });
+
+    // Grupo de Rutas para Familias
+    Route::prefix('familias')->group(function () {
+        Route::get('/', [FamiliasController::class, 'index'])->name('familias.index');
     });
 });
